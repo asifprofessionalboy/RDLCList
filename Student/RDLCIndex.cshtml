@@ -1,0 +1,50 @@
+﻿@using System.Data
+@{
+    // Retrieve the DataTable from ViewBag
+    DataTable stuDataTbl = ViewBag.stuDataTbl as DataTable;
+}
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Student List</title>
+</head>
+<body>
+    <h1>Student List</h1>
+
+    <!-- Display the student list -->
+    @if (stuDataTbl != null)
+    {
+        <table id="datatableDefault" class="table table-responsive table-hover text-nowrap w-100 dataTable no-footer dtr-inline collapsed" aria-describedby="datatableDefault_info" style="width: 637px;">
+            <thead>
+                <tr>
+                    @foreach (DataColumn column in stuDataTbl.Columns)
+                    {
+                        <th>@column.ColumnName</th>
+                    }
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (DataRow row in stuDataTbl.Rows)
+                {
+                    <tr>
+                        @foreach (DataColumn column in stuDataTbl.Columns)
+                        {
+                            <td>@row[column]</td>
+                        }
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+    else
+    {
+        <p>No data available.</p>
+    }
+
+    <!-- Button to download the PDF report -->
+    <form method="get" action="/Student/DownloadReport">
+        <button type="submit">Download PDF Report</button>
+    </form>
+</body>
+</html>

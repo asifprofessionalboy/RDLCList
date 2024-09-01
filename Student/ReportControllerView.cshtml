@@ -1,0 +1,53 @@
+﻿@* @using Newtonsoft.Json;
+@using System.Data;
+@using AspNetCore;
+@using Microsoft.ReportingServices.Rendering;
+@{
+    // Extract the report path and data source from ViewData
+    var reportPath = ViewData["ReportPath"].ToString();
+    var dataSource = (System.Data.DataTable)ViewData["DataSource"];
+
+    // Convert DataTable to a list of dictionaries for serialization
+    var dataTableRows = dataSource.AsEnumerable()
+                                  .Select(row => dataSource.Columns
+                                                           .Cast<DataColumn>()
+                                                           .ToDictionary(col => col.ColumnName, col => row[col]));
+
+    // Serialize the list of dictionaries to JSON
+    var jsonDataSource = JsonConvert.SerializeObject(dataTableRows);
+}
+
+<div id="reportViewer" style="height: 800px; width: 100%;"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/jquery/dist/jquery.min.js"></script>
+<link href="https://cdn.jsdelivr.net/npm/@@microsoft/reportviewer/dist/css/ReportViewer.css" rel="stylesheet" />
+<script src="https://cdn.jsdelivr.net/npm/@@microsoft/reportviewer/dist/js/ReportViewer.js"></script>
+<script src="https://cdn.polyfill.io/v2/polyfill.min.js?features=Promise"></script>
+<script type="text/javascript">
+    $(document).ready(function () {
+        if ($.fn.reportViewer) {
+            console.log('ReportViewer is loaded');
+            $("#reportViewer").reportViewer({
+                reportPath: "/Reports/StudentRPT.rdlc",
+                reportParameters: {},
+                dataSources: [{
+                    name: "dsStudent",
+                    value: @Html.Raw(jsonDataSource)
+                    }]
+            });
+        } else {
+            console.error('ReportViewer plugin is not loaded');
+        }
+    });
+</script>
+
+ *@
+
+
+
+<report-viewer asp-process-report="ProcessReport"
+               asp-report-server-url="http://<report_server_url>/ReportServer"
+               asp-report-path="/<report_folder>/<report_name>"
+               width="100%"
+               height="600px">
+</report-viewer>
